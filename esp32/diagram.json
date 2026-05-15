@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-breadboard", "id": "bb1", "top": -41.4, "left": 127.6, "attrs": {} },
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 86.4,
+      "left": 14.44,
+      "attrs": { "env": "micropython-20231227-v1.22.0" }
+    },
+    { "type": "wokwi-pir-motion-sensor", "id": "pir1", "top": -140, "left": 136.62, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -162.9, "left": 225, "attrs": {} },
+    {
+      "type": "wokwi-gas-sensor",
+      "id": "gas1",
+      "top": -148,
+      "left": 242.9,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": -163.5,
+      "left": 282.5,
+      "rotate": 90,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay1",
+      "top": -141,
+      "left": 406.8,
+      "rotate": 270,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay2",
+      "top": -141,
+      "left": 464.4,
+      "rotate": 270,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay3",
+      "top": -141,
+      "left": 522,
+      "rotate": 270,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay4",
+      "top": -141,
+      "left": 579.6,
+      "rotate": 270,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text1",
+      "top": -220.8,
+      "left": 441.6,
+      "rotate": 270,
+      "attrs": { "text": "Tranca" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text2",
+      "top": -230.4,
+      "left": 489.6,
+      "rotate": 270,
+      "attrs": { "text": "Lâmpada" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text3",
+      "top": -259.2,
+      "left": 518.4,
+      "rotate": 270,
+      "attrs": { "text": "Ar Condicionado" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "text4",
+      "top": -240,
+      "left": 595.2,
+      "rotate": 270,
+      "attrs": { "text": "Umidificador" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "esp:GND.3", "bb1:bn.1", "black", [ "h0" ] ],
+    [ "esp:5V", "bb1:bp.1", "red", [ "h9.75", "v-134.4", "h144.8" ] ],
+    [ "bb1:bp.50", "bb1:tp.50", "red", [ "h37.6", "v-174" ] ],
+    [ "bb1:bn.50", "bb1:tn.50", "black", [ "h47.2", "v-174" ] ],
+    [ "pir1:VCC", "bb1:tp.1", "red", [ "v0" ] ],
+    [ "pir1:GND", "bb1:tn.3", "black", [ "v0" ] ],
+    [ "pir1:OUT", "bb1:4t.a", "green", [ "v0" ] ],
+    [ "dht1:GND", "bb1:tn.10", "black", [ "v0" ] ],
+    [ "dht1:VCC", "bb1:tp.7", "red", [ "v19.2" ] ],
+    [ "dht1:SDA", "bb1:11t.a", "green", [ "v0" ] ],
+    [ "gas1:VCC", "bb1:tp.12", "red", [ "v0" ] ],
+    [ "gas1:AOUT", "bb1:19t.a", "green", [ "v0" ] ],
+    [ "gas1:DOUT", "bb1:18t.a", "green", [ "v0" ] ],
+    [ "gas1:GND", "bb1:tn.13", "black", [ "v0" ] ],
+    [ "bb1:19t.e", "bb1:19b.f", "green", [ "v0" ] ],
+    [ "bb1:18t.e", "bb1:18b.f", "green", [ "v0" ] ],
+    [ "bb1:11t.e", "bb1:11b.f", "green", [ "v28.8" ] ],
+    [ "bb1:4t.e", "bb1:4b.f", "green", [ "v0" ] ],
+    [ "ldr1:VCC", "bb1:tp.20", "red", [ "v0" ] ],
+    [ "ldr1:GND", "bb1:tn.19", "black", [ "v0" ] ],
+    [ "ldr1:DO", "bb1:23t.a", "green", [ "v0" ] ],
+    [ "ldr1:AO", "bb1:22t.a", "green", [ "v0" ] ],
+    [ "bb1:23t.e", "bb1:23b.f", "green", [ "v28.8" ] ],
+    [ "bb1:22t.e", "bb1:22b.f", "green", [ "v28.8" ] ],
+    [ "relay1:VCC", "bb1:tp.26", "red", [ "v0" ] ],
+    [ "relay1:GND", "bb1:tn.27", "black", [ "v0" ] ],
+    [ "relay2:VCC", "bb1:tp.31", "red", [ "v0" ] ],
+    [ "relay2:GND", "bb1:tn.32", "black", [ "v0" ] ],
+    [ "relay3:VCC", "bb1:tp.36", "red", [ "v0" ] ],
+    [ "relay3:GND", "bb1:tn.37", "black", [ "v0" ] ],
+    [ "relay4:VCC", "bb1:tp.41", "red", [ "v0" ] ],
+    [ "relay4:GND", "bb1:tn.42", "black", [ "v0" ] ],
+    [ "relay4:IN", "bb1:53t.a", "green", [ "v0" ] ],
+    [ "relay3:IN", "bb1:47t.a", "green", [ "v0" ] ],
+    [ "relay2:IN", "bb1:41t.a", "green", [ "v0" ] ],
+    [ "relay1:IN", "bb1:35t.a", "green", [ "v0" ] ],
+    [ "bb1:35t.e", "bb1:35b.f", "green", [ "v0" ] ],
+    [ "bb1:41t.e", "bb1:41b.f", "green", [ "v28.8" ] ],
+    [ "bb1:47t.e", "bb1:47b.f", "green", [ "v0" ] ],
+    [ "bb1:53t.e", "bb1:53b.f", "green", [ "v0" ] ],
+    [ "bb1:4b.j", "esp:23", "green", [ "v0" ] ],
+    [ "bb1:11b.j", "esp:22", "green", [ "v0" ] ],
+    [ "bb1:18b.j", "esp:21", "green", [ "v0" ] ],
+    [ "bb1:19b.j", "esp:34", "green", [ "v0" ] ],
+    [ "bb1:22b.j", "esp:35", "green", [ "v0" ] ],
+    [ "bb1:23b.j", "esp:19", "green", [ "v0" ] ],
+    [ "bb1:35b.j", "esp:18", "green", [ "v0" ] ],
+    [ "bb1:41b.j", "esp:17", "green", [ "v0" ] ],
+    [ "bb1:47b.j", "esp:16", "green", [ "v0" ] ],
+    [ "bb1:53b.j", "esp:4", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
