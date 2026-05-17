@@ -18,6 +18,44 @@ class Sensor:
         self.gas = ADC(Pin(34))
         self.motion = Pin(23, Pin.IN)
 
+    def leitura(self):
+        dados = {"temperatura":0, "umidade": 0, "iluminacao": 0, "gas":0, "movimento":0}
+
+        #dht
+        try:
+            self.dht.measure()
+            dados["temperatura"] = self.dht.temperature()
+            dados["umidade"] = self.dht.humidity()
+        except OSError as e:
+            print(f"erro leitura dht{e}")
+        #gas-sensor
+        try:
+            valor_gas = self.gas.read()
+            dados["gas"] = round((valor_gas/4095)*100 ,2)
+        except OSError as e:
+            print(f"erro leitura gas{e}")    
+        #iluminacao
+        try:
+            valor_iluminacao = self.ldr.read()
+            if valor_iluminacao >= 1000: 
+                dados["iluminacao"] = "Escuro" 
+            elif 170 <= valor_iluminacao < 1000:
+                dados["iluminacao"] = "Dia Nublado"
+            elif 39 <= valor_iluminacao < 170:
+                dados["iluminacao"] = "Claridade Total"
+            else:
+                dados["iluminacao"] = "Sol Direto"
+        except OSError as e:
+            print(f"erro leitura luz{e}")
+
+        #movimento
+        try:
+            dados["movimento"] = self.motion.value()
+        except OSError as e:
+            print(f"erro leitura movimento{e}")  
+
+        return dados
+
 class Relays:
     # Relay = 18 Roxo
     # Relay = 17 Roxo
@@ -29,7 +67,45 @@ class Relays:
         self.condicianado = Pin(16, Pin.OUT)
         self.umidificador = Pin(4, Pin.OUT)
 
+        self.lampada.value(0)
+        self.tranca.value(0)
+        self.ar.value(0)
+        self.umidificador.vlaue(0)
+
+    #controle manual    
+    def controle_lampada(self, estado):
+        self.lampada.value(estado)
+        
+    def controle_tranca(self, estado):
+        self.tranca.value(estado)
+
+    def controlar_ar(self, estado):
+        self.ar.value(estado)
+        
+    def controlar_umidificador(self, estado):
+        self.umidificador.value(estado)
+
+    def automacao(self, dados):
+        # ar condicionado
+        if dados["temperatura"] > 28:
+            self.condicionado.value(1) 
+        else:
+            self.condicionado.value(0)
+            
+        # umidificador
+        if dados["umidade"] < 30:
+            self.umidificador.value(1)
+        else:
+            self.umidificador.value(0)
+            
+        # lampada
+        if dados["iluminacao"] in ["Escuro", "Dia Nublado"] and dados["movimento"] == 1:
+            self.lampada.value(1)
+        else:
+            self.lampada.value(0)
+
 class MQTT:
+
     def __init__(self, MQTT_CLIENT_ID, MQTT_BROKER, MQTT_USER, MQTT_PASSWORD, topic):
         self.MQTT_BROKER = MQTT_BROKER
         self.topic = topic
@@ -43,7 +119,7 @@ class MQTT:
             print(f"Erro ao conectar no MQTT: {e}")
             time.sleep(3)
 
-    # Publicação
+    #Publlicação
     def publish(self, dados):
         try:
             message = ujson.dumps(dados)
@@ -52,18 +128,18 @@ class MQTT:
         except Exception as e:
             print(f"Erro ao publicar MQTT: {e}")
             self.connectMQTT()
-
+        
 class ConexaoWifi:
     def connectWifi(self):
         print("Connecting to WiFi", end="")
         sta_if = network.WLAN(network.STA_IF)
         sta_if.active(True)
-        sta_if.connect('microcontroler', '')
+        sta_if.connect('Wokwi-GUEST', '')
 
         while not sta_if.isconnected():
             print(".", end="")
             time.sleep(0.1)
-            print("Connected!")
+        print("Connected!")
 
 wifi = ConexaoWifi()
 wifi.connectWifi()
@@ -77,6 +153,18 @@ mqtt = MQTT(
 )
 mqtt.connectMQTT()
 
+sensor = Sensor()
+
+
 while True:
-    print("ok")
-    time.sleep(1)
+    dados = sensor.leitura()
+
+    #publicar o mqtt
+    mqtt.publish({
+        "umidade" : dados["umidade"],
+        "temperatura" : dados["temperatura"],
+        "gas": dados["gas"],
+        "iluminacao": dados["iluminacao"],
+        "movimento": dados["movimento"]
+    })
+    time.sleep(3)
