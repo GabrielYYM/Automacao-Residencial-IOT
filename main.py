@@ -1,10 +1,12 @@
-from machine import Pin, ADC
+from machine import Pin, ADC, SoftI2C
+from ssd1306 import SSD1306_I2C
 from umqtt.simple import MQTTClient
 import dht
 import ujson
 import time
 import network
 import socket
+import gc
 
 class Sensor: 
     # pir-motion-sensor = 23 Verde
@@ -74,17 +76,29 @@ class Relays:
         self.umidificador.value(0)
 
     #controle manual    
-    def controle_lampada(self, estado):
-        self.lampada.value(estado)
+    def processar_comando(self, topico, msg):
+        comando = msg.decode('utf-8')
+        print(f"Recebido no tópico {topico}: {comando}")
         
-    def controle_tranca(self, estado):
-        self.tranca.value(estado)
-
-    def controlar_ar(self, estado):
-        self.ar.value(estado)
+        if comando == "LIGAR_LAMPADA":
+            self.lampada.value(1)
+        elif comando == "DESLIGAR_LAMPADA":
+            self.lampada.value(0)
         
-    def controlar_umidificador(self, estado):
-        self.umidificador.value(estado)
+        elif comando == "ABRIR_TRANCA":
+            self.tranca.value(1)
+        elif comando == "FECHAR_TRANCA":
+            self.tranca.value(0)
+        
+        elif comando == "LIGAR_AR":
+            self.ar.value(1)
+        elif comando == "DESLIGAR_AR":
+            self.ar.value(0)
+        
+        elif comando == "LIGAR_UMIDIFICADOR":
+            self.umidificador.value(1)
+        elif comando == "DESLIGAR_UMIDIFICADOR":
+            self.umidificador.value(0)
 
     def automacao(self, dados):
         # ar condicionado
@@ -100,25 +114,46 @@ class Relays:
             self.umidificador.value(0)
             
         # lampada
-        if dados["iluminacao"] in ["Escuro", "Dia Nublado"] and dados["movimento"] == 1:
+        if dados["iluminacao"] in ["Escuro", "Dia Nublado"]:
             self.lampada.value(1)
         else:
             self.lampada.value(0)
 
-class MQTT:
 
+class Display:
+#Laranja tela oled = scl=33, sda=32     
+    def __init__(self):
+        self.i2c = SoftI2C(scl=Pin(33), sda=Pin(32))
+        self.oled = SSD1306_I2C(128, 64, self.i2c)
+        self.tela = 1
+
+    def atualizar_tela(self, dados):
+        try:
+            self.oled.fill(0)
+            self.oled.text(f"Temp: {dados['temperatura']}C", 0, 0)
+            self.oled.text(f"Umid: {dados['umidade']}%", 0, 10)
+            self.oled.text(f"Gas: {dados['gas']}%", 0, 20)
+            self.oled.text(f"Luz: {dados['iluminacao']}", 0, 30)
+            if dados["movimento"] == 1:
+                self.oled.text("ALERTA: Movimento!", 0, 45)
+            self.oled.show()
+        except OSError as e:
+            print(f"Erro display: {e}")
+
+class MQTT:
     def __init__(self, MQTT_CLIENT_ID, MQTT_BROKER, MQTT_USER, MQTT_PASSWORD, topic):
         self.MQTT_BROKER = MQTT_BROKER
         self.topic = topic
         self.client = MQTTClient(client_id=MQTT_CLIENT_ID, server=MQTT_BROKER, port=8883, user=MQTT_USER, password=MQTT_PASSWORD, keepalive=60, ssl=True, ssl_params={'server_hostname': MQTT_BROKER})
     
     def connectMQTT(self):
+        gc.collect()
         try:
             self.client.connect()
+            self.client.subscribe(b"autohome/comando")
             print("MQTT Conectado!")
         except Exception as e:
             print(f"Erro ao conectar no MQTT: {e}")
-            time.sleep(3)
 
     #Publlicação
     def publish(self, dados):
@@ -128,8 +163,15 @@ class MQTT:
             self.client.publish(self.topic, message)
         except Exception as e:
             print(f"Erro ao publicar MQTT: {e}")
+            gc.collect()
             self.connectMQTT()
+
+    def set_callback(self, funcao_callback):
+        self.client.set_callback(funcao_callback)
         
+    def check_msg(self):
+        self.client.check_msg()
+
 class ConexaoWifi:
     def connectWifi(self):
         print("Connecting to WiFi", end="")
@@ -142,35 +184,22 @@ class ConexaoWifi:
             time.sleep(0.1)
         print("Connected!")
 
-def gerar_html(dados):
-    # Transforma o 1 ou 0 do sensor PIR em texto legível
-    movimento_texto = "Detectado" if dados["movimento"] == 1 else "Sem movimento"
+def html(dados):
     
-    # Criamos o HTML já injetando as variáveis em tempo real
     html = f"""<!DOCTYPE html>
     <html>
     <head>
-        <title>Painel da Estufa</title>
+        <title>Home</title>
         <meta charset="UTF-8">
-        <style>
-            body {{ font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }}
-            .card {{ background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); display: inline-block; text-align: left; }}
-            h1 {{ color: #2c3e50; }}
-            p {{ font-size: 18px; color: #34495e; }}
-            .valor {{ font-weight: bold; color: #2980b9; }}
-        </style>
     </head>
     <body>
-        <h1>Monitoramento da Estufa</h1>
+        <h1>Monitoramento</h1>
         <div class="card">
-            <p>Temperatura: <span class="valor">{dados["temperatura"]} &deg;C</span></p>
-            <p>Umidade: <span class="valor">{dados["umidade"]} %</span></p>
-            <p>Nivel de Gas: <span class="valor">{dados["gas"]} %</span></p>
-            <p>Iluminacao: <span class="valor">{dados["iluminacao"]}</span></p>
-            <p>Movimento: <span class="valor">{movimento_texto}</span></p>
+            <p>Temperatura: <b>{dados["temperatura"]} &deg;C</b></p>
+            <p>Umidade: <b>{dados["umidade"]} %</b></p>
+            <p>Nivel de Gas: <b>{dados["gas"]} %</b></p>
+            <p>Iluminacao: <b>{dados["iluminacao"]}</b></p>
         </div>
-        <br>
-        <button onclick="location.reload();" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">Atualizar Dados</button>
     </body>
     </html>
     """
@@ -179,67 +208,88 @@ def gerar_html(dados):
 wifi = ConexaoWifi()
 wifi.connectWifi()
 
-mqtt = MQTT(
-  MQTT_CLIENT_ID="micropython-estufa",
-  MQTT_BROKER="3de8a2c7550545e9924723f1202e8918.s1.eu.hivemq.cloud",
-  MQTT_USER="Teste",
-  MQTT_PASSWORD="TestPassword1",
-  topic="autohome"
-)
-mqtt.connectMQTT()
-
 sensor = Sensor()
 reles = Relays()
+display = Display()
+
+mqtt = MQTT(
+  MQTT_CLIENT_ID="micropython-home",
+  MQTT_BROKER="9c401a8e1d2c400ea04310884e277b03.s1.eu.hivemq.cloud",
+  MQTT_USER="UserGabriel",
+  MQTT_PASSWORD="SehaCuster1",
+  topic="autohome"
+)
+mqtt.set_callback(reles.processar_comando)
+mqtt.connectMQTT()
 
 porta = 80
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('', porta))
 s.listen(5)
-s.settimeout(0.2)
-print("http://localhost:8181")
+s.settimeout(0.5)
+sta_if = network.WLAN(network.STA_IF)
+try:
+    ip = sta_if.ifconfig()[0]
+except Exception:
+    ip = '0.0.0.0'
+print(f"http://localhost:8181")
 
 ultimo_envio_mqtt = 0 
-intervalo = 3000
+intervalo_mqtt = 5000
+
+intervalo_sensores = 4000
+ultimo_leitura = time.ticks_ms()
+
 dados_atuais = sensor.leitura()
 
 while True:
-    
     try:
+        try:
+            mqtt.check_msg() 
+        except OSError as e:
+            print(f"Erro ao checar MQTT: {e}")
+
         conn, addr = s.accept()
         conn.settimeout(2.0)
-
-        request = conn.recv(4096).decode('utf-8') 
-
-        if 'GET /favicon.ico' in request:
-            conn.sendall("HTTP/1.1 404 Not Found\r\n\r\n".encode('utf-8'))
-            conn.close()
-        elif request:
-            pagina = gerar_html(dados_atuais)
-            resposta = "HTTP/1.1 200 OK\r\n"
-            resposta += "Content-Type: text/html; charset=utf-8\r\n"
-            resposta += f"Content-Length: {len(pagina)}\r\n"
-            resposta += "Connection: close\r\n\r\n"
-            resposta += pagina
-            conn.sendall(resposta.encode('utf-8'))
-            time.sleep(0.1) 
-            conn.close()
-            
-    except OSError:
-        pass
-    except Exception as e:
-        print(f"Erro no servidor web: {e}")
+        
         try:
-            conn.close()
-        except:
-            pass
+            request = conn.recv(4096).decode('utf-8')
+            
+            if 'GET /favicon.ico' in request:
+                conn.sendall("HTTP/1.1 404 Not Found\r\n\r\n".encode('utf-8'))
+            elif request:
+                pagina = html(dados_atuais)
+                resposta = "HTTP/1.1 200 OK\r\n"
+                resposta += "Content-Type: text/html; charset=utf-8\r\n"
+                resposta += f"Content-Length: {len(pagina)}\r\n"
+                resposta += "Connection: close\r\n\r\n"
+                resposta += pagina
+                conn.sendall(resposta.encode('utf-8'))
+        
+        except OSError as e:
+            print(f"Erro no processamento da requisição: {e}")
+        finally:
+            time.sleep(0.1)
+            try:
+                conn.close()
+            except:
+                pass
 
-    agora = time.ticks_ms()
+    except OSError as e:
+        pass #evitar spam de log por timeout
+    except Exception as e:
+        print(f"Erro inesperado no servidor web: {repr(e)}")
+
+    timer = time.ticks_ms()
     
-    if time.ticks_diff(agora, ultimo_envio_mqtt) > intervalo:
+    if time.ticks_diff(timer, ultimo_leitura) > intervalo_sensores:
         dados_atuais = sensor.leitura()
         reles.automacao(dados_atuais)
-        
+        display.atualizar_tela(dados_atuais)
+        ultimo_leitura = timer
+    
+    if time.ticks_diff(timer, ultimo_envio_mqtt) > intervalo_mqtt:
         mqtt.publish({
             "umidade" : dados_atuais["umidade"],
             "temperatura" : dados_atuais["temperatura"],
@@ -248,4 +298,4 @@ while True:
             "movimento": dados_atuais["movimento"]
         })
         
-        ultimo_envio_mqtt = agora
+        ultimo_envio_mqtt = timer
