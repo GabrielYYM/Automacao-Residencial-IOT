@@ -1,0 +1,651 @@
+[
+    {
+        "id": "8e393547d0d37750",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "8363b7edf17055a4",
+        "type": "mqtt in",
+        "z": "8e393547d0d37750",
+        "name": "wokwi-autohome",
+        "topic": "autohome",
+        "qos": "0",
+        "datatype": "utf8",
+        "broker": "f5c6e820a0c29012",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 480,
+        "y": 220,
+        "wires": [
+            [
+                "c5d8e875af476609",
+                "14b23be881f7766b",
+                "30708691a49dc70b"
+            ]
+        ]
+    },
+    {
+        "id": "c5d8e875af476609",
+        "type": "json",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 690,
+        "y": 220,
+        "wires": [
+            [
+                "bc473cc80a0c3e85",
+                "ecc13f7e66958e2a",
+                "6102745aae95ce19",
+                "c41c724b21696b69",
+                "16c2bf2d1a2986c0",
+                "666f27552d92e68e"
+            ]
+        ]
+    },
+    {
+        "id": "b292247939d54a64",
+        "type": "ui_gauge",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "group": "598fbe992ab076ac",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Tempetarura",
+        "label": "C°",
+        "format": "{{value | number:1}}C°",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1170,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "14b23be881f7766b",
+        "type": "debug",
+        "z": "8e393547d0d37750",
+        "name": "mqtt",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 690,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "ecc13f7e66958e2a",
+        "type": "change",
+        "z": "8e393547d0d37750",
+        "name": "temperatura",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.temperatura",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 910,
+        "y": 160,
+        "wires": [
+            [
+                "b292247939d54a64",
+                "82201a9db6ad4be8"
+            ]
+        ]
+    },
+    {
+        "id": "bc473cc80a0c3e85",
+        "type": "change",
+        "z": "8e393547d0d37750",
+        "name": "umidade",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.umidade",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 900,
+        "y": 220,
+        "wires": [
+            [
+                "3fcb0be9b17f1c84"
+            ]
+        ]
+    },
+    {
+        "id": "3fcb0be9b17f1c84",
+        "type": "ui_gauge",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "group": "598fbe992ab076ac",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Umidade",
+        "label": "",
+        "format": "{{value | number:1}}%",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#b50000",
+            "#e6e600",
+            "#2c07fa"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1180,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "82201a9db6ad4be8",
+        "type": "debug",
+        "z": "8e393547d0d37750",
+        "name": "change",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1160,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "6102745aae95ce19",
+        "type": "debug",
+        "z": "8e393547d0d37750",
+        "name": "json",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 890,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "30708691a49dc70b",
+        "type": "http request",
+        "z": "8e393547d0d37750",
+        "name": "Sheet",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://script.google.com/macros/s/AKfycbx_8nfKiWLrt6VBQI3L9fZUW_-Ef0JMLANM0FncZI_bhnssNYnZnQHgsR0WrRx44z94/exec",
+        "tls": "fd1cee8b20c2787a",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 710,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9b31acc6434c7e3a",
+        "type": "http request",
+        "z": "8e393547d0d37750",
+        "name": "EnvioEmail",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "https://script.google.com/macros/s/AKfycbysBmauopU_39bD7v2WvmwGzr6N0dbIInbeOYiEWrkkblBY7ZhNvsR51AC8cmY_0rl6/exec",
+        "tls": "fd1cee8b20c2787a",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1170,
+        "y": 400,
+        "wires": [
+            [
+                "4f63c0f8a563352c"
+            ]
+        ]
+    },
+    {
+        "id": "121b813dac12b142",
+        "type": "mqtt out",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "topic": "autohome/comando",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "f5c6e820a0c29012",
+        "x": 1240,
+        "y": 620,
+        "wires": []
+    },
+    {
+        "id": "c41c724b21696b69",
+        "type": "switch",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "property": "payload.movimento",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "1",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 890,
+        "y": 400,
+        "wires": [
+            [
+                "9b31acc6434c7e3a",
+                "28dd7e3e71faa351"
+            ]
+        ]
+    },
+    {
+        "id": "4f63c0f8a563352c",
+        "type": "debug",
+        "z": "8e393547d0d37750",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1360,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "a9c9217971baaac2",
+        "type": "ui_button",
+        "z": "8e393547d0d37750",
+        "name": "Tranca",
+        "group": "fd35994bbd1abdbc",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Tranca",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "ABRIR_TRANCA",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 930,
+        "y": 620,
+        "wires": [
+            [
+                "121b813dac12b142"
+            ]
+        ]
+    },
+    {
+        "id": "9ed8630bbd48e1b5",
+        "type": "ui_button",
+        "z": "8e393547d0d37750",
+        "name": "Lampada",
+        "group": "fd35994bbd1abdbc",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Lampada",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "LIGAR_LAMPADA",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 940,
+        "y": 680,
+        "wires": [
+            [
+                "121b813dac12b142"
+            ]
+        ]
+    },
+    {
+        "id": "8b0209edc09f0fc7",
+        "type": "ui_button",
+        "z": "8e393547d0d37750",
+        "name": "ArCond",
+        "group": "fd35994bbd1abdbc",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "ArCond",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "LIGAR_AR",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 940,
+        "y": 740,
+        "wires": [
+            [
+                "121b813dac12b142"
+            ]
+        ]
+    },
+    {
+        "id": "446a41736c6ac5bd",
+        "type": "ui_button",
+        "z": "8e393547d0d37750",
+        "name": "Umidi",
+        "group": "fd35994bbd1abdbc",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Umidi",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "LIGAR_UMIDIFICADOR",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 930,
+        "y": 800,
+        "wires": [
+            [
+                "121b813dac12b142"
+            ]
+        ]
+    },
+    {
+        "id": "ea196f8f7f28b148",
+        "type": "ui_text",
+        "z": "8e393547d0d37750",
+        "group": "cf29860dea3b1980",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "iluminacao",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1170,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "16c2bf2d1a2986c0",
+        "type": "change",
+        "z": "8e393547d0d37750",
+        "name": "Iluminacao",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.iluminacao",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 910,
+        "y": 280,
+        "wires": [
+            [
+                "ea196f8f7f28b148"
+            ]
+        ]
+    },
+    {
+        "id": "666f27552d92e68e",
+        "type": "change",
+        "z": "8e393547d0d37750",
+        "name": "gas",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.gas",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 890,
+        "y": 340,
+        "wires": [
+            [
+                "ba1e4957c3134880"
+            ]
+        ]
+    },
+    {
+        "id": "ba1e4957c3134880",
+        "type": "ui_gauge",
+        "z": "8e393547d0d37750",
+        "name": "",
+        "group": "598fbe992ab076ac",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "gas",
+        "label": "",
+        "format": "{{value | number:1}}%",
+        "min": 0,
+        "max": "100",
+        "colors": [
+            "#b50000",
+            "#e6e600",
+            "#2c07fa"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 1190,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "28dd7e3e71faa351",
+        "type": "ui_toast",
+        "z": "8e393547d0d37750",
+        "position": "top right",
+        "displayTime": "3",
+        "highlight": "",
+        "sendall": true,
+        "outputs": 0,
+        "ok": "OK",
+        "cancel": "",
+        "raw": false,
+        "className": "",
+        "topic": "",
+        "name": "Popup",
+        "x": 1190,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "f5c6e820a0c29012",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "9c401a8e1d2c400ea04310884e277b03.s1.eu.hivemq.cloud",
+        "port": "8883",
+        "tls": "fd1cee8b20c2787a",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "598fbe992ab076ac",
+        "type": "ui_group",
+        "name": "Gauges",
+        "tab": "09d9082aebb00a4a",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "fd1cee8b20c2787a",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "",
+        "servername": "",
+        "verifyservercert": true,
+        "alpnprotocol": ""
+    },
+    {
+        "id": "fd35994bbd1abdbc",
+        "type": "ui_group",
+        "name": "Manual",
+        "tab": "09d9082aebb00a4a",
+        "order": 3,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "cf29860dea3b1980",
+        "type": "ui_group",
+        "name": "Dados",
+        "tab": "09d9082aebb00a4a",
+        "order": 2,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "09d9082aebb00a4a",
+        "type": "ui_tab",
+        "name": "Main",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "c8cb33585d8e80ce",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
