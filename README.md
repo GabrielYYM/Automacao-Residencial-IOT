@@ -1,57 +1,72 @@
-# MicroPython Simulation in Wokwi for VS Code
 
-Example project for running MicroPython on [Wokwi for VS Code](https://marketplace.visualstudio.com/items?itemName=Wokwi.wokwi-vscode).
+Automação Residencial IOT — Documentação Técnica
+===============================================
 
-## Prerequisites
+Descrição
+---------
+Projeto de automação residencial com ESP32 e display OLED (SSD1306) usando MicroPython.
 
-1. Install the [Wokwi for VS Code](https://marketplace.visualstudio.com/items?itemName=Wokwi.wokwi-vscode) extension.
-2. Install the [mpremote](https://docs.micropython.org/en/latest/reference/mpremote.html) tool, e.g. `pip install mpremote`.
+Objetivo
+--------
+Fornecer um firmware simples para exibir informações no display e controlar funcionalidades de automação via ESP32.
 
-## Usage
+Conteúdo do repositório
+-----------------------
+- `main.py` — código principal que roda no dispositivo.
+- `ssd1306.mpy` — biblioteca do display SSD1306 (pré-empacotada para MicroPython).
+- `flows.json` — arquivo de configuração/fluxos (uso do projeto).
+- `esp32/` — arquivos específicos do hardware e configuração (diagramas, Wokwi, etc.).
+- `docs/` — documentação complementar e diagramas.
 
-1. Clone this project and open it in VS Code.
-2. From the command palette, select "Wokwi: Start Simulator". You may need to activate your license first.
-3. Select one of the directories to simulate, e.g. "esp32".
-4. While the simulator is running, open a command prompt, and type:
+Requisitos de hardware
+----------------------
+- Placa ESP32.
+- Display OLED SSD1306 (I2C).
+- Cabos e fonte de alimentação adequada (3.3V).
 
-   ```python
-   python -m mpremote connect port:rfc2217://localhost:4000 run main.py
-   ```
+Ligação (exemplo comum para ESP32)
+---------------------------------
+- VCC -> 3V3
+- GND -> GND
+- SDA -> GPIO21
+- SCL -> GPIO22
 
-   This will connect to the simulator and run the `main.py` file on the board.
-   Note: keep the simulator tab visible while running the command, otherwise the simulator will pause and the command will timeout.
+Observação: ajuste os pinos I2C no código se necessário.
 
-## Advanced usage
+Pré-requisitos de software
+--------------------------
+- MicroPython instalado na ESP32.
+- `mpremote` (ou outra ferramenta compatível) para transferir arquivos e acessar o REPL.
 
-You can also use the `mpremote` tool to upload files to the simulator, install libraries, and open a REPL session. For example, the following command will connect to the simulator, upload the `main.py` file, install the `ssd1306` library, and then open a REPL session:
+Procedimento de atualização / deploy
+-----------------------------------
+1. Conecte ao dispositivo (exemplo usando servidor RFC2217 local na porta 4000):
 
-```python
-python -m mpremote connect port:rfc2217://localhost:4000 fs cp main.py :main.py + mip install ssd1306 + repl
+```bash
+python -m mpremote connect port:rfc2217://localhost:4000 cp ssd1306.mpy :ssd1306.mpy
+python -m mpremote connect port:rfc2217://localhost:4000 cp main.py :main.py
+# Pressione CTRL+D no REPL para reiniciar e aplicar as mudanças
 ```
 
-See the [mpremote documentation](https://docs.micropython.org/en/latest/reference/mpremote.html) for more details.
+2. Verifique o console/REPL para mensagens de inicialização.
 
-### Shortcut
+Execução
+--------
+Ao reiniciar, a placa executará `main.py` automaticamente (se presente na raíz do dispositivo).
 
-On Unix based systems (e.g. Mac or Linux), you can create a shortcut for connecting to the simulator by running the following command:
+Boas práticas de desenvolvimento
+-------------------------------
+- Edite `main.py` localmente e envie novamente com `mpremote` para testar alterações.
+- Mantenha `ssd1306.mpy` sincronizada com a versão usada em produção para evitar incompatibilidades.
 
-```shell
-mkdir -p ~/.config/mpremote
-echo 'config={"wokwi": "connect port:rfc2217://localhost:4000"}' > ~/.config/mpremote/config.py
-```
+Referências e diagramas
+----------------------
+- Ver a pasta `esp32/` para diagramas e configuração de simulação (Wokwi).
 
-After running this command, you can connect to the simulator by running `mpremote wokwi`.
+Contato
+-------
+Para dúvidas ou contribuições, abra uma issue neste repositório.
 
-## Troubleshooting
-
-**`TransportError: could not enter raw repl`**
-
-This error means mpremote couldn't establish a connection with the MicroPython REPL. Common causes:
-
-1. **Simulator tab not visible** - VS Code pauses the simulation when the Wokwi tab is not visible. Make sure the simulator tab is in the foreground.
-2. **Board still booting** - Wait a few seconds after the simulator starts before running mpremote. The board needs time to boot MicroPython.
-3. **Port conflict** - Make sure nothing else is using port 4000. You can change the port in `wokwi.toml` by editing the `rfc2217ServerPort` value.
-
-## License
-
-Licensed under the MIT license. See [LICENSE](LICENSE) for details.
+Licença
+-------
+Coloque aqui a licença do projeto, se aplicável.
