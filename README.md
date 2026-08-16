@@ -4,7 +4,7 @@ Automação Residencial IOT — Documentação Técnica
 
 Descrição
 ---------
-Projeto de automação residencial com ESP32 e display OLED (SSD1306) usando MicroPython.
+Projeto de automação residencial baseado em ESP32 e MicroPython, utilizando um display OLED SSD1306 para exibição de informações e controle de funcionalidades do sistema.
 
 Objetivo
 --------
@@ -54,11 +54,6 @@ Execução
 --------
 Ao reiniciar, a placa executará `main.py` automaticamente (se presente na raíz do dispositivo).
 
-Boas práticas de desenvolvimento
--------------------------------
-- Edite `main.py` localmente e envie novamente com `mpremote` para testar alterações.
-- Mantenha `ssd1306.mpy` sincronizada com a versão usada em produção para evitar incompatibilidades.
-
 Referências e diagramas
 ----------------------
 - Ver a pasta `esp32/` para diagramas e configuração de simulação (Wokwi).
@@ -67,6 +62,5 @@ Contato
 -------
 Para dúvidas ou contribuições, abra uma issue neste repositório.
 
-Licença
--------
-Coloque aqui a licença do projeto, se aplicável.
+Automação Residencial IoT
+ESP32 • MicroPython • OLED SSD1306
